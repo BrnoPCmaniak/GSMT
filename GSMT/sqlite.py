@@ -5,16 +5,17 @@ import sys
 import user, utils
 
 class sqliteDriver(object):
-    def __init__(self, main):
+    def __init__(self, main, path):
         self.main = main
+        self.path = path
         self.con = None
         try:
             try:
-                with open(self.main.path + 'database.db'): pass
+                with open(self.path + 'database.db'): pass
             except IOError:
-                file = open(self.main.path + 'database.db', "w")
+                file = open(self.path + 'database.db', "w")
                 file.close()
-            self.con = lite.connect(self.main.path + 'database.db')
+            self.con = lite.connect(self.path + 'database.db')
             
             cur = self.con.cursor()    
             cur.execute('SELECT SQLITE_VERSION()')
@@ -32,6 +33,7 @@ class sqliteDriver(object):
             cur.execute("INSERT INTO Users VALUES(1,'" + str(name) + "', '" + str(password) + "', 0, 0)")
             cur.execute("CREATE TABLE perms(id INT, user INT, name TEXT)")
             cur.execute("INSERT INTO perms VALUES(1, 1, '*')")
+        return True
     
     def getUserObject(self, name = None, id = None):
         with self.con:

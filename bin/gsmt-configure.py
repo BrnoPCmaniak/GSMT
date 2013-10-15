@@ -7,9 +7,9 @@ except Exception as e:
     print "Can't load main library!"
     print "ERROR: " + str(e)
     sys.exit()
-libMain = GSMT.GSMT.main(config=True)
+libMain = GSMT.GSMT.main()
 print "Welcome to GMST " + str(libMain.version) + " (c) Filip Dobrovolny 2013"
-print "=========================="
+print "==============================================="
 if platform.system() != "Linux":
     print "Sorry platform: " + platform.system() + " is not supported yet :("
     print "Do you have supported platform and still showing this message plese contact us."
@@ -83,12 +83,7 @@ while True:
         break
     else:
         print "Password aren't same please try it again. Press q to exit."
-try:
-    libMain.createSQLite()
-except Exeption, e:
-    print "Uknown error at inizializating sqlite database. Please report bug."
-    print "ERROR: " + str(e) + " " + str(e.name)
-    exit()
+libMain.createSQLite()
 try:
     libMain.sqlite.create(name, password1)
 except Exeption, e:
@@ -97,5 +92,5 @@ except Exeption, e:
     exit()
 print "SQLite created: OK"
 print "Superuser created: OK"
-print "=========================="
+print "============================="
 print "Finished !"
