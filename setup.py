@@ -2,11 +2,11 @@ from distutils.core import setup
 
 setup(
     name='GSMT',
-    version='1.1.0',
+    version='1.1.1',
     author='Filip Dobrovolny',
     author_email='brnopcman@gmail.com',
     packages=['GSMT'],
-    scripts=['bin/gsmt-configure.py'],
+    scripts=['bin/gsmt-configure', ],
     url='www.google.com',
     license='LICENSE.txt',
     description='GSMT - Game Server Managment Tool \n Useful tool for server managment.',
