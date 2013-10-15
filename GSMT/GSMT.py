@@ -4,7 +4,7 @@ import sqlite
 class main(object):
     def __init__(self):
         self.path = "/etc/GSMT/"
-        self.version = "1.3.2"
+        self.version = "1.3.3"
     
     def createSQLite(self):
         self.sqlite = sqlite.sqliteDriver(self, self.path)
