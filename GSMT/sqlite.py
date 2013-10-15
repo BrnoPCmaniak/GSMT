@@ -34,7 +34,16 @@ class sqliteDriver(object):
             cur.execute("CREATE TABLE perms(id INT, user INT, name TEXT)")
             cur.execute("INSERT INTO perms VALUES(1, 1, '*')")
         return True
-    
+    def login(self, name, password):
+        with self.con:
+            cur = self.con.cursor()
+            cur.execute("SELECT * FROM Users WHERE name = '" + str(name) + "'AND password = '" + str(password) + "'")
+            try:
+                userdata = cur.fetchone()
+                print userdata
+            except:
+                return False
+            return self.getBoolean(userdata[3])
     def getUserObject(self, name = None, id = None):
         with self.con:
             if name is not None and id is not None:
@@ -82,4 +91,4 @@ class sqliteDriver(object):
             self.con.close()
     
     def getBoolean(self, status):
-        return status == "0"
+        return status == 0
