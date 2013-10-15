@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-import platform, os, sys, getpass, getopt, hashlib
+import platform, os, sys, getpass, getopt
+from GSMT import *
 # Argument Parsing
 try:
     opts, args = getopt.getopt(sys.argv[1:],"hu:p:H:",["help", "user=","password=", "host="])
@@ -54,8 +55,7 @@ while True:
         sys.exit("Bye.")
     if password == None:
         password = getpass.getpass("Password " + str(user) + "@" + str(host) + ": ")
-    encryptedPassword = hashlib.md5()
-    encryptedPassword = encryptedPassword.update(password).hexdigest()    
+    encryptedPassword = GSMT.utils.encryptPass(password)  
     if password != "" and user != "" and libMain.sqlite.login(user, encryptedPassword):
         print 'Suceffuly logged-in!'
         break

@@ -1,6 +1,6 @@
 #-*- coding: utf8 -*-
 
-__version__ = '1.3.0'
+__version__ = '1.3.1'
 import GSMT, os
 try:
     with open('/etc/GSMT/config'): pass

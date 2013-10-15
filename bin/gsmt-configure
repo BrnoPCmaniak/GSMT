@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
-import platform, os, sys, getpass, hashlib
+import platform, os, sys, getpass
 try: 
-    import GSMT
+    from GSMT import *
 except Exception as e:
     print "Can't load main library!"
     print "ERROR: " + str(e)
@@ -81,8 +81,7 @@ while True:
     else:
         print "Password aren't same please try it again. Press q to exit."
 libMain.createSQLite()
-encryptedPassword = hashlib.md5()
-encryptedPassword = encryptedPassword.update(password1).hexdigest()
+encryptedPassword = GSMT.utils.encryptPass(password1)
 
 try:
     libMain.sqlite.create(name, encryptedPassword)
