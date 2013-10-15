@@ -52,6 +52,7 @@ while True:
     if user == None:
         user = raw_input("Username: ")
     if user.lower() == "q":
+        libMain.sqlite.close()
         sys.exit("Bye.")
     if password == None:
         password = getpass.getpass("Password " + str(user) + "@" + str(host) + ": ")
@@ -70,6 +71,7 @@ while True:
 #Exit
 def myExit(temp):
     print 'Bye.'
+    libMain.sqlite.close()
     sys.exit()
 
 def myHelp(temp):

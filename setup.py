@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='GSMT',
-    version='1.3.1',
+    version='1.3.2',
     author='Filip Dobrovolny',
     author_email='brnopcman@gmail.com',
     packages=['GSMT'],

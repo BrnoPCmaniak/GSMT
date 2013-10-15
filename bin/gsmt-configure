@@ -89,6 +89,7 @@ except Exeption, e:
     print "Uknown error at creating sqlite database. Please report bug."
     print "ERROR: " + str(e) + " " + str(e.name)
     exit()
+libMain.sqlite.close()
 print "SQLite created: OK"
 print "Superuser created: OK"
 print "============================="
