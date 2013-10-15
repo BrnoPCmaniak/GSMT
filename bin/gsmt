@@ -1,0 +1,88 @@
+#!/usr/bin/python
+
+import platform, os, sys, getpass, getopt
+# Argument Parsing
+try:
+    opts, args = getopt.getopt(sys.argv[1:],"hu:p:H:",["help", "user=","password=", "host="])
+except getopt.GetoptError:
+    print 'gsmt -u [user] -p [password] -H [host]'
+    sys.exit(2)
+
+user = None
+password = None
+host = "localhost"
+for opt, arg in opts:
+    if opt in ("-h", "--help"):
+        print 'gsmt -u [user] -p [password] -H [host]'
+        sys.exit()
+    elif opt in ("-u", "--user"):
+        user = arg
+    elif opt in ("-p", "--password"):
+        password = arg
+    elif opt in ("-H", "--host"):
+        host = arg
+        print 'Sorry host function is not avalible yet.'
+        sys.exit()
+
+#Import GSMT knihovny
+try: 
+    import GSMT
+except Exception as e:
+    print "Can't load main library!"
+    print "ERROR: " + str(e)
+    sys.exit()
+libMain = GSMT.GSMT.main()
+print "Welcome to GMST " + str(libMain.version) + " (c) Filip Dobrovolny 2013"
+print "==============================================="
+try:
+    with open('/etc/GSMT/config'): pass
+except IOError as e:
+    if os.path.exists("/etc/GSMT"):
+        print 'GSMT does not exists!'
+        print 'Please try run gsmt-configure.'
+        print ''
+        print 'In case gsmt is configured please report bug.'
+        print 'Error:'
+        print e
+        sys.exit()
+
+libMain.createSQLite()
+while True:
+    if user == None:
+        user = raw_input("Username: ")
+    if user.lower() == "q":
+        sys.exit("Bye.")
+    if password == None:
+        password = getpass.getpass("Password " + str(user) + "@" + str(host) + ": ")
+        
+    if password != "" and user != "" and libMain.sqlite.login(user, password):
+        print 'Suceffuly logged-in!'
+        break
+    else:
+        print 'Bad username or password!'
+        user = None
+        password = None
+        print 'Press Q to exit.'
+        
+#functions:
+
+#Exit
+def exit(temp):
+    print 'Bye.'
+    sys.exit()
+
+def myHelp(temp):
+    print 'Commadns:'
+    print '  * help - show this help'
+    print '  * help <command> - display help about command'
+    print '  * exit - exit program'
+
+commands = {"help" : myHelp, "exit" : exit,}        
+while True:
+    userInput = raw_input(">>> ")
+    userInput = userInput.split()
+    if userInput[0].lower() not in commands:
+        print 'Unknown command!'
+        continue
+    commands[userInput[0]](userInput[1:])
+    
