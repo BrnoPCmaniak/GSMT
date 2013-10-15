@@ -2,15 +2,12 @@
 
 import platform, os, sys
 try: 
-    import __init__
-    #import imp
-    #libMain = imp.load_source('GSMT', '../GSMT/__init__.py')
+    import GSMT
 except Exception as e:
     print "Can't load main library!"
     print "ERROR: " + str(e)
     sys.exit()
-#libMain = libMain.main()
-libMain = main()
+libMain = GSMT.GSMT.main(config=True)
 print "Welcome to GMST " + str(libMain.version) + " (c) Filip Dobrovolny 2013"
 print "=========================="
 if platform.system() != "Linux":
@@ -22,33 +19,55 @@ print "Platform: OK"
 if not os.geteuid()==0:
     sys.exit("\nOnly root can run this script\n")
 print "Root: OK"
+def makeConf():
+    try:
+        file = open('/etc/GSMT/config', 'w')
+        file.write("# This is config of GSMT "+ str(libMain.version) + " (c) Filip Dobrovolny 2013")
+        file.close()
+    except Exeption, e:
+        print "Uknown error at creating /etc/GSMT/config. Please report bug."
+        print "ERROR: " + str(e) + " " + str(e.name)
+        sys.exit()
+    else:
+        print "/etc/GSMT/config created: OK"
 try:
    with open('/etc/GSMT/config'): pass
-except IOError:
+except IOError as e:
+   if os.path.exists("/etc/GSMT"):
+       makeConf()
+       print 'GSMT alredy exists.'
+       print 'If GSMT not exists, please try remove /etc/GSMT folder.'
+       sys.exit()
+   print "/etc/GSMT not exist: OK"
+else:
    print 'GSMT alredy exists.'
-   print 'If GSMT not exists, please try remove /etc/GSMT folder'
+   print 'If GSMT not exists, please try remove /etc/GSMT folder.'
+   print 'In other case please report bug.'
    sys.exit()
-print "/etc/GSMT not exist: OK"
 try:
     os.mkdir("/etc/GSMT")
 except Exeption, e:
-    print "Uknown error at creting /etc/GSMT folder. Please report bug."
+    print "Uknown error at creating /etc/GSMT folder. Please report bug."
     print "ERROR: " + str(e) + " " + str(e.name)
     sys.exit()
+
 print "/etc/GSMT created: OK"
+def exit():
+    os.remove("/etc/GSMT")
+    sys.exit()
 try:
     os.mkdir("/etc/GSMT/games")
 except Exeption, e:
-    print "Uknown error at creting /etc/GSMT/games folder. Please report bug."
+    print "Uknown error at creating /etc/GSMT/games folder. Please report bug."
     print "ERROR: " + str(e) + " " + str(e.name)
-    sys.exit()
+    exit()
 print "/etc/GSMT/games created: OK"
 try:
     os.mkdir("/etc/GSMT/modules")
 except Exeption, e:
-    print "Uknown error at creting /etc/GSMT/modules folder. Please report bug."
+    print "Uknown error at creating /etc/GSMT/modules folder. Please report bug."
     print "ERROR: " + str(e) + " " + str(e.name)
-    sys.exit()
+    exit()
 print "/etc/GSMT/modules created: OK"
 print "please create superuser:"
 name = raw_input("name:")
@@ -57,7 +76,7 @@ while True:
     if password1 == "q":
         print "Exitting ..."
         print "Create superuser: Failed"
-        sys.exit()
+        exit()
         break
     password2 = raw_input("re-password:")
     if password1 == password2:
@@ -65,10 +84,18 @@ while True:
     else:
         print "Password aren't same please try it again. Press q to exit."
 try:
+    libMain.createSQLite()
+except Exeption, e:
+    print "Uknown error at inizializating sqlite database. Please report bug."
+    print "ERROR: " + str(e) + " " + str(e.name)
+    exit()
+try:
     libMain.sqlite.create(name, password1)
 except Exeption, e:
-    print "Uknown error at creting sqlite database. Please report bug."
+    print "Uknown error at creating sqlite database. Please report bug."
     print "ERROR: " + str(e) + " " + str(e.name)
-    sys.exit()
+    exit()
 print "SQLite created: OK"
 print "Superuser created: OK"
+print "=========================="
+print "Finished !"

@@ -29,7 +29,7 @@ class sqliteDriver(object):
         with self.con:
             cur = self.con.cursor()    
             cur.execute("CREATE TABLE Users(id INT, name TEXT, password TEXT, blocked INT, changepass INT)")
-            cur.execute("INSERT INTO Users VALUES(1,'" + str(name) + "', '" + str(password) + "', 1, 1)")
+            cur.execute("INSERT INTO Users VALUES(1,'" + str(name) + "', '" + str(password) + "', 0, 0)")
             cur.execute("CREATE TABLE perms(id INT, user INT, name TEXT)")
             cur.execute("INSERT INTO perms VALUES(1, 1, '*')")
     

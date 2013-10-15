@@ -2,9 +2,9 @@
 import sqlite
 
 class main(object):
-    def __init__(self, config=False):
+    def __init__(self, config=True):
         self.path = "/etc/GSMT/"
-        self.version = "1.0.0"
+        self.version = "1.1.0"
         if not config:
             self.sqlite = sqlite.sqliteDriver(self)
         else:
