@@ -79,7 +79,9 @@ while True:
         exit()
         break
     password2 = getpass.getpass("RePassword: ")
-    if password1 == password2:
+    if len(password1) < 5:
+        print "Password must be 5 or more characters length!"
+    elif password1 == password2:
         break
     else:
         print "Password aren't same please try it again. Press q to exit."
