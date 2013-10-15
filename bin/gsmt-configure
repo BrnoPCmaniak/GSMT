@@ -19,22 +19,16 @@ print "Platform: OK"
 if not os.geteuid()==0:
     sys.exit("\nOnly root can run this script\n")
 print "Root: OK"
+
 def makeConf():
-    try:
-        file = open('/etc/GSMT/config', 'w')
-        file.write("# This is config of GSMT "+ str(libMain.version) + " (c) Filip Dobrovolny 2013")
-        file.close()
-    except Exeption, e:
-        print "Uknown error at creating /etc/GSMT/config. Please report bug."
-        print "ERROR: " + str(e) + " " + str(e.name)
-        sys.exit()
-    else:
-        print "/etc/GSMT/config created: OK"
+    file = open('/etc/GSMT/config', 'w')
+    file.write("# This is config of GSMT "+ str(libMain.version) + " (c) Filip Dobrovolny 2013")
+    file.close()
+    print '/etc/GSMT/config created: OK'
 try:
    with open('/etc/GSMT/config'): pass
 except IOError as e:
    if os.path.exists("/etc/GSMT"):
-       makeConf()
        print 'GSMT alredy exists.'
        print 'If GSMT not exists, please try remove /etc/GSMT folder.'
        sys.exit()
@@ -46,6 +40,7 @@ else:
    sys.exit()
 try:
     os.mkdir("/etc/GSMT")
+    makeConf()
 except Exeption, e:
     print "Uknown error at creating /etc/GSMT folder. Please report bug."
     print "ERROR: " + str(e) + " " + str(e.name)
