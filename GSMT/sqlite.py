@@ -33,6 +33,7 @@ class sqliteDriver(object):
             cur.execute("INSERT INTO Users VALUES(1,'" + str(name) + "', '" + str(password) + "', 0, 0)")
             cur.execute("CREATE TABLE perms(id INT, user INT, name TEXT)")
             cur.execute("INSERT INTO perms VALUES(1, 1, '*')")
+            cur.commit
         return True
     def login(self, name, password):
         with self.con:
@@ -40,10 +41,12 @@ class sqliteDriver(object):
             cur.execute("SELECT * FROM Users WHERE name = '" + str(name) + "'AND password = '" + str(password) + "'")
             try:
                 userdata = cur.fetchone()
-                print userdata
             except:
                 return False
-            return self.getBoolean(userdata[3])
+            if userdata is not None:
+                return self.getBoolean(userdata[3])
+            else:
+                return False
     def getUserObject(self, name = None, id = None):
         with self.con:
             if name is not None and id is not None:
@@ -85,7 +88,20 @@ class sqliteDriver(object):
                 return user.User(userdata[0], userdata[1], userdata[2], self.getBoolean(userdata[3]), self.getBoolean(userdata[4]), permlist, self)
             else:
                 return False
-    
+    def changeUserPass(self, password, name = None, id = None):
+        if id != None and password != None:
+            with self.con:
+                cur = self.con.cursor()
+                cur.execute("UPDATE Users SET password = '" + str(password) + "' WHERE id = '" + str(id) + "'")
+                cur.commit
+        elif name != None and password != None:
+            with self.con:
+                cur = self.con.cursor()
+                cur.execute("UPDATE Users SET password = '" + str(password) + "' WHERE name = '" + str(name) + "'")
+                cur.commit
+        else:
+            return False
+        return True
     def close(self):
         if self.con is not None:
             self.con.close()

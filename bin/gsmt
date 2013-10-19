@@ -33,7 +33,7 @@ except Exception as e:
     print "ERROR: " + str(e)
     sys.exit()
 libMain = GSMT.GSMT.main()
-print "Welcome to GMST " + str(libMain.version) + " (c) Filip Dobrovolny 2013"
+print "Welcome to GSMT " + str(libMain.version) + " (c) Filip Dobrovolny 2013"
 print "==============================================="
 try:
     with open('/etc/GSMT/config'): pass
@@ -59,6 +59,7 @@ while True:
     encryptedPassword = GSMT.utils.encryptPass(password)  
     if password != "" and user != "" and libMain.sqlite.login(user, encryptedPassword):
         print 'Suceffuly logged-in!'
+        del(password)
         break
     else:
         print 'Bad username or password!'
@@ -77,10 +78,27 @@ def myExit(temp):
 def myHelp(temp):
     print 'Commadns:'
     print '  * help - show this help'
-    print '  * help <command> - display help about command'
+    print '  * help <command> - display help about <command>'
+    print '  * passwd - change password of actual user'
+    print '  * passwd <user> - change password of <user>'
     print '  * exit - exit program'
 
-commands = {"help" : myHelp, "exit" : myExit,}        
+def passwd(temp):
+    if temp != []:
+        actualPassword = getpass.getpass("Password " + str(user) + "@" + str(host) + ": ")
+        encryptedActualPassword = GSMT.utils.encryptPass(actualPassword)
+        del(actualPassword)
+        if encryptedActualPassword == encryptedPassword:
+            password1 = getpass.getpass("New-Password")
+            password2 = getpass.getpass("Re-New-Password")
+            if password1 == password2:
+                encryptedNewPassword = GSMT.utils.encryptPass(password1)
+                del()
+                if libMain.sqlite.changeUserPass(encryptedNewPassword, user):
+                    encryptedPassword = encryptedNewPassword
+            
+        
+commands = {"help" : myHelp, "exit" : myExit, "passwd" : passwd, }        
 while True:
     userInput = raw_input(">>> ")
     userInput = userInput.split()
