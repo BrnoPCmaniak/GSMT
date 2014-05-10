@@ -108,16 +108,16 @@ def checkIfExist():
  @author: Filip Dobrovolny '''
 def getSuperuserInfo():
     print "please create GSMT superuser:"
-    name = raw_input("Name: ")
+    name = utils.input("Name: ", sys.exit)
     
     while True:
-        password1 = getpass.getpass()
+        password1 = utils.inputPass("Passwrod: ", sys.exit)
         if password1 == "q":
             print "Exiting ..."
             print "Create superuser: Failed"
             exit()
             break
-        password2 = getpass.getpass("RePassword: ")
+        password2 = utils.inputPass("Re-Passwrod: ", sys.exit)
         if len(password1) < 5:
             print "Password must be 5 or more characters length!"
         elif password1 == password2:

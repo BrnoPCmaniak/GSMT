@@ -1,4 +1,4 @@
-import hashlib, platform, os
+import hashlib, platform, os, getpass
 
 
 def encryptPass(password):
@@ -21,6 +21,24 @@ def checkRoot():
         return False
     
     
+def input(text, end):
+    return SafeInput(raw_input, text, end)
+
+
+def inputPass(text, end):
+    return SafeInput(getpass.getpass, text, end)
+
+
+def SafeInput(inputFunc, text, end):
+    try:
+        userInput = inputFunc(text)
+        print "",
+    except (EOFError, BaseException):
+        print ""
+        end()
+    return userInput
+
+
 class permission(object):
     def __init__(self, name, id):
         self.name = name
