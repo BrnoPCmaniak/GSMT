@@ -33,7 +33,7 @@ class sqliteDriver(object):
             cur.execute("INSERT INTO Users VALUES(1,'" + str(name) + "', '" + str(password) + "', 0, 0)")
             cur.execute("CREATE TABLE perms(id INT, user INT, name TEXT)")
             cur.execute("INSERT INTO perms VALUES(1, 1, '*')")
-            cur.commit
+            self.con.commit()
         return True
     def login(self, name, password):
         with self.con:
@@ -93,12 +93,12 @@ class sqliteDriver(object):
             with self.con:
                 cur = self.con.cursor()
                 cur.execute("UPDATE Users SET password = '" + str(password) + "' WHERE id = '" + str(id) + "'")
-                cur.commit
+                self.con.commit()
         elif name != None and password != None:
             with self.con:
                 cur = self.con.cursor()
                 cur.execute("UPDATE Users SET password = '" + str(password) + "' WHERE name = '" + str(name) + "'")
-                cur.commit
+                self.con.commit()
         else:
             return False
         return True

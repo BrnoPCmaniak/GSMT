@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-import platform, os, sys, getpass
+import platform, os, sys, getpass, shutil
+
 try: 
     from GSMT import *
 except Exception as e:
@@ -8,89 +9,143 @@ except Exception as e:
     print "ERROR: " + str(e)
     sys.exit()
 libMain = GSMT.main()
-print "Welcome to GMST " + str(libMain.version) + " (c) Filip Dobrovolny 2013"
-print "==============================================="
-if platform.system() != "Linux":
-    print "Sorry platform: " + platform.system() + " is not supported yet :("
-    print "Do you have supported platform and still showing this message plese contact us."
+
+MainPath = "/etc/GSMT"
+
+
+############################ functions ############################
+
+
+def exit():
+    shutil.rmtree(MainPath)
+    print MainPath  + " deleted: OK"
     sys.exit()
-print "Platform: OK"
-# if not root...kick out
-if not os.geteuid()==0:
-    sys.exit("\nOnly root can run this script\n")
-print "Root: OK"
+    
 
 def makeConf():
-    file = open('/etc/GSMT/config', 'w')
+    file = open(MainPath + '/config', 'w')
     file.write("# This is config of GSMT "+ str(libMain.version) + " (c) Filip Dobrovolny 2013")
     file.close()
-    print '/etc/GSMT/config created: OK'
-try:
-   with open('/etc/GSMT/config'): pass
-except IOError as e:
-   if os.path.exists("/etc/GSMT"):
-       print 'GSMT alredy exists.'
-       print 'If GSMT not exists, please try remove /etc/GSMT folder.'
-       sys.exit()
-   print "/etc/GSMT not exist: OK"
-else:
-   print 'GSMT alredy exists.'
-   print 'If GSMT not exists, please try remove /etc/GSMT folder.'
-   print 'In other case please report bug.'
-   sys.exit()
-try:
-    os.mkdir("/etc/GSMT")
-    makeConf()
-except Exeption, e:
-    print "Uknown error at creating /etc/GSMT folder. Please report bug."
-    print "ERROR: " + str(e) + " " + str(e.name)
-    sys.exit()
+    print MainPath + '/config created: OK'
 
-print "/etc/GSMT created: OK"
-def exit():
-    os.remove("/etc/GSMT")
-    sys.exit()
-try:
-    os.mkdir("/etc/GSMT/games")
-except Exeption, e:
-    print "Uknown error at creating /etc/GSMT/games folder. Please report bug."
-    print "ERROR: " + str(e) + " " + str(e.name)
-    exit()
-print "/etc/GSMT/games created: OK"
-try:
-    os.mkdir("/etc/GSMT/modules")
-except Exeption, e:
-    print "Uknown error at creating /etc/GSMT/modules folder. Please report bug."
-    print "ERROR: " + str(e) + " " + str(e.name)
-    exit()
-print "/etc/GSMT/modules created: OK"
-print "please create superuser:"
-name = raw_input("name:")
-while True:
-    password1 = getpass.getpass()
-    if password1 == "q":
-        print "Exitting ..."
-        print "Create superuser: Failed"
-        exit()
-        break
-    password2 = getpass.getpass("RePassword: ")
-    if len(password1) < 5:
-        print "Password must be 5 or more characters length!"
-    elif password1 == password2:
-        break
+
+def createPath(path):
+    try:
+        os.mkdir(path)
+    except:
+        print "Uknown error at creating" + path + " folder. Please report bug."
+        print "ERROR: " + str(sys.exc_info())
+        sys.exit()
     else:
-        print "Password aren't same please try it again. Press q to exit."
-libMain.createSQLite()
-encryptedPassword = GSMT.utils.encryptPass(password1)
+        print path + " created: OK"
 
-try:
-    libMain.sqlite.create(name, encryptedPassword)
-except Exeption, e:
-    print "Uknown error at creating sqlite database. Please report bug."
-    print "ERROR: " + str(e) + " " + str(e.name)
-    exit()
-libMain.sqlite.close()
-print "SQLite created: OK"
-print "Superuser created: OK"
+def createStructure():
+    createPath(MainPath)
+    createPath(MainPath + "/games")
+    createPath(MainPath + "/modules")
+
+
+def checkPlatform():
+    if not utils.checkPlatform():
+        print "Sorry platform: " + platform.system() + " is not supported yet :("
+        print "Do you have supported platform and still showing this message please contact us."
+        sys.exit()
+    else:
+        print "Platform: OK"
+
+
+def checkRoot():
+    if not utils.checkRoot():
+        sys.exit("\nOnly root can run this script\n")
+    else:
+        print "Root: OK"
+
+
+def checkIfExist():
+    try:
+        with open(MainPath + '/config/'): pass
+    except IOError as e:
+        if os.path.exists(MainPath):
+            print 'ERROR: GSMT alredy exists.'
+            print 'If GSMT not exists, please try to remove ' + MainPath + ' folder.'
+            sys.exit()
+        else:
+            print MainPath + " not exist: OK"
+    else:
+        print 'ERROR: GSMT alredy exists.'
+        print 'If GSMT is not installed, please try remove ' + MainPath + ' folder.'
+        print 'In other case, please report bug.'
+        sys.exit()
+
+
+def getSuperuserInfo():
+    print "please create GSMT superuser:\n"
+    name = raw_input("Name: ")
+    
+    while True:
+        password1 = getpass.getpass()
+        if password1 == "q":
+            print "Exiting ..."
+            print "Create superuser: Failed"
+            exit()
+            break
+        password2 = getpass.getpass("RePassword: ")
+        if len(password1) < 5:
+            print "Password must be 5 or more characters length!"
+        elif password1 == password2:
+            break
+        else:
+            print "Password aren't same please try it again. Or press q to exit."
+            
+    return name, utils.encryptPass(password1)
+
+
+def createSQLite():
+    try:
+        libMain.createSQLite()
+    except:
+        print "Uknown error at creating sqlite database. Please report bug."
+        print "ERROR: " + str(sys.exc_info())
+        exit()
+    else:
+        print "SQLite created: OK"
+
+
+def registerSuperuser(name, password):
+    try:
+        libMain.sqlite.create(name, password)
+        libMain.sqlite.close()
+    except:
+        print "Uknown error at creating sqlite database. Please report bug."
+        print "ERROR: " + str(sys.exc_info())
+        exit()
+    else:
+        print "Superuser created: OK"
+
+
+
+################ Configurate ################
+print "Welcome to GMST " + str(libMain.version) + " (c) Filip Dobrovolny 2013"
+print "==============================================="
+
+# Platform check
+checkPlatform()
+
+# Check if user is root
+checkRoot()
+
+# check if main path alredy exists
+checkIfExist()
+
+#crate main structure
+createStructure()
+makeConf()
+
+
+createSQLite()
+superInfo = getSuperuserInfo()
+registerSuperuser(superInfo[0], superInfo[1])
+
+
 print "============================="
 print "Finished !"
