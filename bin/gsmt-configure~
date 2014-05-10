@@ -7,7 +7,7 @@ except Exception as e:
     print "Can\'t load main library!"
     print "ERROR: " + str(e)
     sys.exit()
-libMain = GSMT.main()
+libMain = GSMT.GSMT.main()
 print "Welcome to GMST " + str(libMain.version) + " (c) Filip Dobrovolny 2013"
 print "==============================================="
 if platform.system() != "Linux":

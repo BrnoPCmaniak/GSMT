@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='GSMT',
-    version='1.3.3',
+    version='1.3.4',
     author='Filip Dobrovolny',
     author_email='brnopcman@gmail.com',
     packages=['GSMT'],
@@ -10,7 +10,7 @@ setup(
     url='www.google.com',
     license='docs/LICENSE.txt',
     description='GSMT - Game Server Managment Tool \n Useful tool for server managment.',
-    long_description='GSMT - Game Server Managment Tool \n Useful tool for server managment.',#open('README.txt').read(),
+    long_description=open('README.txt').read(),
     install_requires=[
         "sqlite3",
     ],

@@ -93,7 +93,6 @@ def passwd(temp):
             password2 = getpass.getpass("Re-New-Password")
             if password1 == password2:
                 encryptedNewPassword = GSMT.utils.encryptPass(password1)
-                del()
                 if libMain.sqlite.changeUserPass(encryptedNewPassword, user):
                     encryptedPassword = encryptedNewPassword
             
