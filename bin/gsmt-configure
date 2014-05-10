@@ -16,12 +16,19 @@ MainPath = "/etc/GSMT"
 ############################ functions ############################
 
 
+'''
+ @note: Exit configuration process and delete MainPath
+ @author: Filip Dobrovolny '''
 def exit():
     shutil.rmtree(MainPath)
     print MainPath  + " deleted: OK"
     sys.exit()
-    
 
+
+'''
+ @note: create basic conf structure in MainPath
+ @todo: move this to utils and add something more then just head
+ @author: Filip Dobrovolny '''
 def makeConf():
     file = open(MainPath + '/config', 'w')
     file.write("# This is config of GSMT "+ str(libMain.version) + " (c) Filip Dobrovolny 2013")
@@ -29,6 +36,10 @@ def makeConf():
     print MainPath + '/config created: OK'
 
 
+'''
+ @note: create folder on specifed path
+ @param path: path of the folder eg. "/foo/bar" -> create folder "bar" in /foo
+ @author: Filip Dobrovolny '''
 def createPath(path):
     try:
         os.mkdir(path)
@@ -39,12 +50,19 @@ def createPath(path):
     else:
         print path + " created: OK"
 
+
+'''
+ @note: create basic structure of MainPath
+ @author: Filip Dobrovolny '''
 def createStructure():
     createPath(MainPath)
     createPath(MainPath + "/games")
     createPath(MainPath + "/modules")
 
 
+'''
+ @note: check if the program is running under suported OS 
+ @author: Filip Dobrovolny '''
 def checkPlatform():
     if not utils.checkPlatform():
         print "Sorry platform: " + platform.system() + " is not supported yet :("
@@ -54,6 +72,9 @@ def checkPlatform():
         print "Platform: OK"
 
 
+'''
+ @note: check if actual user is root
+ @author: Filip Dobrovolny '''
 def checkRoot():
     if not utils.checkRoot():
         sys.exit("\nOnly root can run this script\n")
@@ -61,6 +82,9 @@ def checkRoot():
         print "Root: OK"
 
 
+'''
+ @note: check if isn't GSMT already configured
+ @author: Filip Dobrovolny '''
 def checkIfExist():
     try:
         with open(MainPath + '/config/'): pass
@@ -78,8 +102,12 @@ def checkIfExist():
         sys.exit()
 
 
+'''
+ @note: ask user to enter name and password of GSMT superuser
+ @return: tuple of name and password in md5 (name, MD5password) eg. (admin, <someMD5hash>)
+ @author: Filip Dobrovolny '''
 def getSuperuserInfo():
-    print "please create GSMT superuser:\n"
+    print "please create GSMT superuser:"
     name = raw_input("Name: ")
     
     while True:
@@ -100,6 +128,9 @@ def getSuperuserInfo():
     return name, utils.encryptPass(password1)
 
 
+'''
+ @note: initialize SQLite driver
+ @author: Filip Dobrovolny '''
 def createSQLite():
     try:
         libMain.createSQLite()
@@ -111,6 +142,10 @@ def createSQLite():
         print "SQLite created: OK"
 
 
+'''
+ @note: create basic SQLite structure, register Superuser and close connection
+ @todo: split libMain.sqlite.create() into two function
+ @author: Filip Dobrovolny '''
 def registerSuperuser(name, password):
     try:
         libMain.sqlite.create(name, password)
@@ -141,7 +176,7 @@ checkIfExist()
 createStructure()
 makeConf()
 
-
+#create GSMT superuser
 createSQLite()
 superInfo = getSuperuserInfo()
 registerSuperuser(superInfo[0], superInfo[1])
