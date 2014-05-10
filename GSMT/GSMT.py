@@ -6,5 +6,5 @@ class main(object):
         self.path = "/etc/GSMT/"
         self.version = "1.3.6"
     
-    def createSQLite(self):
+    def initSQLite(self):
         self.sqlite = sqlite.sqliteDriver(self, self.path)

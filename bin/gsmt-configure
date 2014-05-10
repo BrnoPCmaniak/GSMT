@@ -133,7 +133,7 @@ def getSuperuserInfo():
  @author: Filip Dobrovolny '''
 def createSQLite():
     try:
-        libMain.createSQLite()
+        libMain.initSQLite()
     except:
         print "Uknown error at creating sqlite database. Please report bug."
         print "ERROR: " + str(sys.exc_info())

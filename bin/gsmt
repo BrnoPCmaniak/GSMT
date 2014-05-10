@@ -97,7 +97,7 @@ except IOError as e:
         print e
         sys.exit()
 
-libMain.createSQLite()
+libMain.initSQLite()
 while True:
     if username == None:
         username = utils.input("Username: ", myExit)
