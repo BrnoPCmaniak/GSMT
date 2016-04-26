@@ -44,7 +44,7 @@ class VerifyingServer(SimpleXMLRPCServer):
         basic, encoded = headers.get('Authorization').split(' ')
         assert basic == 'Basic', 'Only basic authentication supported'
         username, password = b64decode(encoded).decode().split(':')
-        self.daemon.logger.warn(
+        self.daemon.logger.info(
             "CONNECTION_ACCEPTED: User %s with password %s" % (
                 username, password))
         # TODO: check if username and password is correct

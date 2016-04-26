@@ -56,42 +56,44 @@ class Daemon(object):
     daemon = None
     debug = False
 
-    def __init__(self, path="/etc/GSMT", adress="localhost",
-                 port=8000, debug=False):
+    def __init__(self, path="/etc/GSMT", verbose=False, foreground=False,
+                 port=8000, adress="localhost", user=None, group=None):
         """Init :class:`DaemonizeWithXMLRPC`.
 
         If path does not exists create it.
         If debug create logger to stdout.
 
         :param:`path`: Path for config, db and pidfile.
-        :param:`adress`: Adress of XMLRPC.
-        :param:`port`: /port of XMLRPC.
-        :param:`debug`: If True app stasys in foreground and redirect
+        :param:`verbose`: Lower log level to DEBUG.
+        :param:`foreground`: If True app stays in foreground and redirect
                         the output to stdout.
+        :param:`port`: Port for XMLRPC.
+        :param:`adress`: Adress for XMLRPC.
+        :param:`user`: User for gsmt-daemon.
+        :param:`group`: Group for gsmt-daemon.
         """
-        self.debug = debug
-
         os.makedirs(path, exist_ok=True)  # Create dir when not exists
         self.pid = os.path.join(path, "GSM.pid")
 
-        if self.debug:
+        if foreground:
             # if debug create new logger to stdout
             logger = logging.getLogger("__main__")
             logger.setLevel(logging.DEBUG)
 
-            ch = logging.StreamHandler(sys.stdout)
-            ch.setLevel(logging.DEBUG)
+            stdout = logging.StreamHandler(sys.stdout)
+            stdout.setLevel(logging.DEBUG)
             formatter = logging.Formatter(
                 '%(asctime)s - %(levelname)s - %(message)s')
-            ch.setFormatter(formatter)
-            logger.addHandler(ch)
+            stdout.setFormatter(formatter)
+            logger.addHandler(stdout)
         else:
             # otherwise use system logger
             logger = None
 
         self.daemonize = DaemonizeWithXMLRPC(
-            adress=adress, port=port, app="GSMT", pid=self.pid,
-            action=self.main, foreground=debug, verbose=debug, logger=logger)
+            adress=adress, port=port, app="GSMT", pid=self.pid, user=user,
+            group=group, action=self.main, foreground=foreground,
+            verbose=verbose, logger=logger)
 
     def main(self):
         """Register functions in xmlrpc and run server."""
