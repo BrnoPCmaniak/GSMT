@@ -16,19 +16,19 @@ class sqliteDriver(object):
                 file = open(self.path + 'database.db', "w")
                 file.close()
             self.con = lite.connect(self.path + 'database.db')
-            
-            cur = self.con.cursor()    
+
+            cur = self.con.cursor()
             cur.execute('SELECT SQLITE_VERSION()')
-            
+
             self.version = cur.fetchone()
         except lite.Error, e:
-            
+
             print "Error %s:" % e.args[0]
             sys.exit(1)
-    
+
     def create(self, name, password):
         with self.con:
-            cur = self.con.cursor()    
+            cur = self.con.cursor()
             cur.execute("CREATE TABLE Users(id INT, name TEXT, password TEXT, blocked INT, changepass INT)")
             cur.execute("INSERT INTO Users VALUES(1,'" + str(name) + "', '" + str(password) + "', 0, 0)")
             cur.execute("CREATE TABLE perms(id INT, user INT, name TEXT)")
@@ -105,6 +105,6 @@ class sqliteDriver(object):
     def close(self):
         if self.con is not None:
             self.con.close()
-    
+
     def getBoolean(self, status):
         return status == 0

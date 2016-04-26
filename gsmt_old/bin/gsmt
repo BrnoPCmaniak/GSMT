@@ -25,7 +25,7 @@ for opt, arg in opts:
         sys.exit()
 
 #Import GSMT knihovny
-try: 
+try:
     from GSMT import *
 except Exception as e:
     print "Can't load main library!"
@@ -63,7 +63,7 @@ def passwd(temp):
         if encryptedActualPassword == encryptedPassword:'''
         while True:
             password1 = utils.inputPass("New-Password: ", myExit)
-            if password1.lower() == "q": 
+            if password1.lower() == "q":
                 break
             if len(password1) >= 5:
                 password1 = utils.encryptPass(password1)
@@ -80,8 +80,8 @@ def passwd(temp):
             else:
                 print "Password must be at least 5 characters long"
 
-            
-        
+
+
 ############################# code part #############################
 print "Welcome to GSMT " + str(libMain.version) + " (c) Filip Dobrovolny 2013"
 print "==============================================="
@@ -106,7 +106,7 @@ while True:
         sys.exit("Bye.")
     if password == None:
         password = utils.inputPass("Password " + str(username) + "@" + str(host) + ": ", myExit)
-    encryptedPassword = utils.encryptPass(password)  
+    encryptedPassword = utils.encryptPass(password)
     if password != "" and user != "" and libMain.sqlite.login(username, encryptedPassword):
         print 'Suceffuly logged-in!'
         del(password)
@@ -116,9 +116,9 @@ while True:
         user = None
         password = None
         print 'Press Q to exit.'
-        
 
-commands = {"help" : myHelp, "exit" : myExit, "passwd" : passwd, }        
+
+commands = {"help" : myHelp, "exit" : myExit, "passwd" : passwd, }
 while True:
     userInput = utils.input(">>>", myExit)
     userInput = userInput.split()
@@ -126,4 +126,3 @@ while True:
         print 'Unknown command!'
         continue
     commands[userInput[0]](userInput[1:])
-    

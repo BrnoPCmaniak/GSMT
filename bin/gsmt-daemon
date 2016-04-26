@@ -1,0 +1,37 @@
+#!/usr/bin/python3
+import sys
+import os
+
+
+def suppress_keyboard_interrupt_message():
+    """Prevent unsightly KeyboardInterrupt tracebacks.
+
+    Nothing will be printed to the terminal after an uncaught
+    :class:`exceptions.KeyboardInterrupt`.
+    Inspired by DNF.
+
+    """
+    old_excepthook = sys.excepthook
+
+    def new_hook(type, value, traceback):
+        if type != KeyboardInterrupt:
+            print("NOPE")
+            old_excepthook(type, value, traceback)
+        else:
+            pass
+
+    sys.excepthook = new_hook
+
+suppress_keyboard_interrupt_message()
+if __name__ != "__main__":
+    sys.stderr.write('The executable for GSMT module must not be imported.')
+    sys.exit(1)
+
+here = sys.path[0]
+if here != '/usr/bin':
+    GSMT_toplevel = os.path.dirname(here)
+    sys.path[0] = GSMT_toplevel
+
+from GSMT.daemon import Daemon
+daemon = Daemon("/home/fdobrovolny/GSMT", True)
+daemon.start()

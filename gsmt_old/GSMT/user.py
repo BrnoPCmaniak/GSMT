@@ -13,7 +13,7 @@ class User(object):
         for perm in self.permlist:
             if perm.name == "*":
                 self.star = True
-    
+
     def changePass(self, old_password, new_password):
         if self.encryptPass(old_password) == self.password:
             self.password = self.encryptPass(new_password)
@@ -21,12 +21,12 @@ class User(object):
             return True
         else:
             return False
-    
+
     def updatePassword(self, password):
         with self.sqlite.con:
             cur = self.con.cursor()
             cur.execute("UPDATE Users SET password='" + password + "' WHERE id=" + str(self.id) + "'")
-    
+
     def updateBlocked(self, status):
         with self.sqlite.con:
             cur = self.con.cursor()
@@ -35,7 +35,7 @@ class User(object):
             else:
                 temp = str(1)
             cur.execute("UPDATE Users SET blocked='" + temp + "' WHERE id=" + str(self.id) + "'")
-    
+
     def updateChangePass(self, status):
         with self.sqlite.con:
             cur = self.con.cursor()
