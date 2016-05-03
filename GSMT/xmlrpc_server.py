@@ -9,6 +9,7 @@ from base64 import b64decode
 
 class VerifyingServer(SimpleXMLRPCServer):
     """SimpleXMLRPCServer with HTTP auth."""
+
     daemon = None
 
     def __init__(self, daemon, *args, **kargs):
@@ -44,7 +45,7 @@ class VerifyingServer(SimpleXMLRPCServer):
         basic, encoded = headers.get('Authorization').split(' ')
         assert basic == 'Basic', 'Only basic authentication supported'
         username, password = b64decode(encoded).decode().split(':')
-        self.daemon.logger.info(
+        self.daemon.logger.debug(
             "CONNECTION_ACCEPTED: User %s with password %s" % (
                 username, password))
         # TODO: check if username and password is correct

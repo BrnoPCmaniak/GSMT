@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# pylint: disable=c0413,c0103
 """GSMT daemon controll script."""
 import configargparse
 import os
@@ -15,9 +16,10 @@ def suppress_keyboard_interrupt_message():
     """
     old_excepthook = sys.excepthook
 
-    def new_hook(type, value, traceback):
-        if type != KeyboardInterrupt:
-            old_excepthook(type, value, traceback)
+    def new_hook(type_, value, traceback):
+        """Create new exceptionhook to ignore KeyboardInterrupt."""
+        if type_ != KeyboardInterrupt:
+            old_excepthook(type_, value, traceback)
         else:
             pass
 
@@ -34,8 +36,8 @@ if HERE != '/usr/bin':
     GSMT_TOP_LEVEL = os.path.dirname(HERE)
     sys.path[0] = GSMT_TOP_LEVEL
 
-from GSMT.daemon import Daemon
-from GSMT.data_groups import Adress, SystemUser
+from GSMT.daemon import Daemon  # noqa
+from GSMT.data_groups import Adress, SystemUser  # noqa
 
 parser = configargparse.ArgParser(
     default_config_files=['/etc/GSMT/gsmt.ini', './gsmt.ini'],

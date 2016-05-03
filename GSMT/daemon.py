@@ -8,7 +8,6 @@ import logging
 import os
 import sys
 
-import configparser
 from daemonize import Daemonize
 
 from GSMT.data_groups import Adress, SystemUser
@@ -36,6 +35,7 @@ class DaemonizeWithXMLRPC(Daemonize):
     adress = None
     port = None
     log_requests = None
+    is_stopping = False
 
     def __init__(self, adress=None, log_requests=False,
                  **kwargs):
@@ -65,6 +65,17 @@ class DaemonizeWithXMLRPC(Daemonize):
             self.server.serve_forever()
         except KeyboardInterrupt:
             self.server.server_close()
+        except Exception as exception:  # pylint: disable=w0703
+            if self.is_stopping:
+                return
+            else:
+                raise exception
+
+    def stop(self):
+        """Stop xmlrpc server and call deamonize exit."""
+        self.is_stopping = True
+        self.server.server_close()
+        return True
 
 
 class Daemon(object):
@@ -76,18 +87,10 @@ class Daemon(object):
     debug = False
     config = None
 
-    class ConfigSettings(object):
-        """Config file settings class object."""
-
-        verbose = None
-        foreground = None
-        adress = "localhost"
-        port = 8000
-        user = None
-        group = None
-
-    def __init__(self, path="/etc/GSMT", verbose=False, foreground=False,
-                 adress=Adress("localhost", 8000), system_user=SystemUser(None, None)):
+    def __init__(self, path="/etc/GSMT",  # pylint: disable=r0913
+                 verbose=False, foreground=False,
+                 adress=Adress("localhost", 8000),
+                 system_user=SystemUser(None, None)):
         """Init :class:`DaemonizeWithXMLRPC`.
 
         If path does not exists create it.
@@ -118,8 +121,8 @@ class Daemon(object):
     def main(self):
         """Register functions in xmlrpc and run server."""
         self.daemonize.server.register_introspection_functions()
+        self.daemonize.server.register_function(self.daemonize.stop)
         self.daemonize.start_xmlrpc()
-
 
     def start(self):
         """Shortcut to start the daemon."""
