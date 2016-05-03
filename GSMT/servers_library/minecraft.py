@@ -56,4 +56,4 @@ class VanilaMinecraftServer(Server):
         :rtype: list
         """
         return (self.config.get("java_options", "-Xms1024M -Xmx2048M")
-                    .split(" "))
+                .split(" "))
