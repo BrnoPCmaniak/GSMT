@@ -21,6 +21,7 @@ from daemonize import Daemonize
 
 from GSMT.data_groups import Adress, SystemUser
 from GSMT.servers_library import GAME_SERVERS
+from GSMT.tools import mkdir_p
 from GSMT.xmlrpc_server import VerifyingServer
 
 
@@ -133,7 +134,7 @@ class Daemon(object):
             :param Adress adress: Port and Adress for XMLRPC.
             :param SystemUser system_user: User and group for gsmt-daemon.
         """
-        os.makedirs(path, exist_ok=True)  # Create dir when not exists
+        mkdir_p(path)  # Create dir when not exists
         self.pid = os.path.join(path, "GSMT.pid")
         self.path = path
         self.servers_path = servers_path

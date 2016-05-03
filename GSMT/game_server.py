@@ -5,6 +5,7 @@ from threading import Thread
 from time import time
 
 from GSMT.exceptions import ServerNotRunning
+from GSMT.tools import mkdir_p
 
 
 class Server(object):
@@ -32,6 +33,8 @@ class Server(object):
         self.path = path
         self.stdout_deque = deque(maxlen=buffsize)
         self.stderr_deque = deque(maxlen=buffsize)
+
+        mkdir_p(path)
 
         self.logger.debug("Initialized server \"%s\" on path \"%s\"." % (name,
                                                                          path))
