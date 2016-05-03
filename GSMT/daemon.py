@@ -155,6 +155,10 @@ class Daemon(object):
         """Register functions in xmlrpc and run server."""
         self.daemonize.server.register_introspection_functions()
         self.daemonize.server.register_function(self.daemonize.stop)
+
+        for server in self.servers:
+            server.start_on_daemon_start()
+
         self.daemonize.start_xmlrpc()
 
     def _init_servers(self):
