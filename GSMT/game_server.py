@@ -44,9 +44,13 @@ class Server(object):
         """Download and setup server."""
         raise NotImplementedError
 
+    def stop(self):
+        """Stop the server."""
+        raise NotImplementedError
+
     def start_on_daemon_start(self):
         """If server option start_on_deamon_start is true start server."""
-        if self.config.getboolean("start_on_deamon_start", fallback=False):
+        if self.config.getboolean("start_on_daemon_start", fallback=False):
             self.start()
 
     def _stdout_watcher(self):
@@ -61,6 +65,7 @@ class Server(object):
         finally:
             stop_msg = "Stopping STDOUT watcher for %s" % self.name
             self.logger.debug(stop_msg)
+            self.logger.debug(self.stdout_deque)
             self.stdout_deque.append((time(), "GSMT: %s" % stop_msg))
 
     def _stderr_watcher(self):
@@ -75,6 +80,7 @@ class Server(object):
         finally:
             stop_msg = "Stopping STDERR watcher for %s" % self.name
             self.logger.debug(stop_msg)
+            self.logger.debug(self.stderr_deque)
             self.stderr_deque.append((time(), "GSMT: %s" % stop_msg))
 
     def _watchdog(self):
@@ -90,18 +96,16 @@ class Server(object):
         """Abstract start command solution."""
         self.logger.info("Starting game server \"%s\"." % self.name)
 
-        self.process = Popen(command, stdin=PIPE, stdout=PIPE,
+        self.process = Popen(command, stdin=PIPE, stdout=PIPE, cwd=self.path,
                              stderr=PIPE, bufsize=1, universal_newlines=True)
 
-        self.watchdog_thread = Thread(targer=self._watchdog, args=[self])
+        self.watchdog_thread = Thread(target=self._watchdog)
         self.watchdog_thread.start()
 
-        self.stdout_watcher_thread = Thread(target=self._stdout_watcher,
-                                            args=[self])
+        self.stdout_watcher_thread = Thread(target=self._stdout_watcher)
         self.stdout_watcher_thread.start()
 
-        self.stderr_watcher_thread = Thread(target=self._stderr_watcher,
-                                            args=[self])
+        self.stderr_watcher_thread = Thread(target=self._stderr_watcher)
         self.stderr_watcher_thread.start()
 
     def check_server_is_running(self):
