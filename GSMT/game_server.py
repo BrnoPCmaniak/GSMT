@@ -44,6 +44,11 @@ class Server(object):
         """Download and setup server."""
         raise NotImplementedError
 
+    def start_on_daemon_start(self):
+        """If server option start_on_deamon_start is true start server."""
+        if self.config.getboolean("start_on_deamon_start", fallback=False):
+            self.start()
+
     def _stdout_watcher(self):
         """Watch STDOUT output of self.process."""
         start_msg = "Starting STDOUT watcher for %s" % self.name
