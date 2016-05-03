@@ -5,7 +5,7 @@ from threading import Thread
 from time import time
 
 from GSMT.exceptions import ServerNotRunning
-from GSMT.tools import mkdir_p
+from GSMT.tools import mkdir_p, remove_newline
 
 
 class Server(object):
@@ -23,14 +23,27 @@ class Server(object):
     stdout_watcher_thread = None
     stderr_deque = None
     stderr_watcher_thread = None
+    stdin_deque = None
     watchdog_thread = None
 
     def __init__(self, name, logger, config, path, buffsize=100):
-        """Init game_server."""
+        """Init game_server.
+
+        -**parameters**, **types**, **return** and **return types**
+
+            :param str name: Name of server director and is also used for
+             generating default path to the server.
+            :param Logger logger: Instance of logger.
+            :param ConfigParse config: Instance of section within the config
+             parse.
+            :param str path: Path to the server directory.
+            :param int buffsize: Number of recent lines to be stored.
+        """
         self.name = name
         self.logger = logger
         self.config = config
         self.path = path
+        self.stdin_deque = deque(maxlen=buffsize)
         self.stdout_deque = deque(maxlen=buffsize)
         self.stderr_deque = deque(maxlen=buffsize)
 
@@ -64,11 +77,10 @@ class Server(object):
         try:
             with self.process.stdout:
                 for line in iter(self.process.stdout.readline, ''):
-                    self.stdout_deque.append((time(), line))
+                    self.stdout_deque.append((time(), remove_newline(line)))
         finally:
             stop_msg = "Stopping STDOUT watcher for %s" % self.name
             self.logger.debug(stop_msg)
-            self.logger.debug(self.stdout_deque)
             self.stdout_deque.append((time(), "GSMT: %s" % stop_msg))
 
     def _stderr_watcher(self):
@@ -79,11 +91,10 @@ class Server(object):
         try:
             with self.process.stderr:
                 for line in iter(self.process.stderr.readline, ''):
-                    self.stderr_deque.append((time(), line))
+                    self.stderr_deque.append((time(), remove_newline(line)))
         finally:
             stop_msg = "Stopping STDERR watcher for %s" % self.name
             self.logger.debug(stop_msg)
-            self.logger.debug(self.stderr_deque)
             self.stderr_deque.append((time(), "GSMT: %s" % stop_msg))
 
     def _watchdog(self):
@@ -117,11 +128,26 @@ class Server(object):
             raise ServerNotRunning(self)
 
     def write(self, command, add_newline=True):
-        """Write to stdin."""
+        r"""Write to stdin of process.
+
+        -**parameters**, **types**, **return** and **return types**
+
+             :param str command: Command for the game server.
+             :param boolean add_newline: When true add \n to the command.
+        """
         self.check_server_is_running()
 
         if add_newline:
-            self.process.stdin.write("%s\n" % command)
-        else:
-            self.process.stdin.write(command)
+            command = "%s\n" % command
+        self.process.stdin.write(command)
+        self.stdin_deque.append((time(), remove_newline(command)))
         self.process.stdin.flush()  # needed for Python3
+
+    def combine(self):
+        """Combine output from stdout, stderr and stdin."""
+        out = deque()
+        out.extend(self.stdin_deque)
+        out.extend(self.stdout_deque)
+        out.extend(self.stderr_deque)
+
+        return sorted(out, key=lambda line: line[0])
