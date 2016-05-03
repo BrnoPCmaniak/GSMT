@@ -51,7 +51,9 @@ parser.add('-f', '--foreground', action='store_true', default=None,
 parser.add('-c', '--config', is_config_file=True,
            help='path to the config file')
 parser.add('-p', '--path', default="/etc/GSMT",
-           help="Path to config directory.")
+           help="Path to configs directory.")
+parser.add('-s', '--servers-path', default="/opt/GSMT",
+           help="Path to servers location.")
 parser.add('-P', '--port', type=int, default=8000,
            help="Port for GSMT server.")
 parser.add('-a', '--adress', default="localhost",
@@ -63,7 +65,7 @@ parser.add('-g', '--group', default=None,
 args = parser.parse_args()
 
 daemon = Daemon(path=args.path, verbose=args.verbose,
-                foreground=args.foreground,
+                foreground=args.foreground, servers_path=args.servers_path,
                 adress=Adress(args.adress, args.port),
                 system_user=SystemUser(args.user, args.group))
 daemon.start()
