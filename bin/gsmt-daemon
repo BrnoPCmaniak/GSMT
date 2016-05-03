@@ -1,7 +1,8 @@
 #!/usr/bin/python3
-import sys
+"""GSMT daemon controll script."""
+import configargparse
 import os
-import argparse
+import sys
 
 
 def suppress_keyboard_interrupt_message():
@@ -27,34 +28,40 @@ if __name__ != "__main__":
     sys.stderr.write('The executable for GSMT module must not be imported.')
     sys.exit(1)
 
-here = sys.path[0]
-if here != '/usr/bin':
-    GSMT_toplevel = os.path.dirname(here)
-    sys.path[0] = GSMT_toplevel
+HERE = sys.path[0]
+if HERE != '/usr/bin':
+    # add ./GSMT folder to python libs (git checkout)
+    GSMT_TOP_LEVEL = os.path.dirname(HERE)
+    sys.path[0] = GSMT_TOP_LEVEL
 
 from GSMT.daemon import Daemon
+from GSMT.data_groups import Adress, SystemUser
 
-parser = argparse.ArgumentParser(
-    prog='gsmt-daemon', formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+parser = configargparse.ArgParser(
+    default_config_files=['/etc/GSMT/gsmt.ini', './gsmt.ini'],
+    prog='gsmt-daemon',
     description='GSMT - Game Server Managment Tool \n Useful tool for '
                 'server managment.')
-parser.add_argument('-v', '--verbose', action='store_true',
-                    help="Log debug messages.")
-parser.add_argument('-f', '--foreground', action='store_true',
-                    help="Do not fork stay in foregroud.")
-parser.add_argument('-d', '--directory', default="/etc/GSMT",
-                    help="Path to config directory.")
-parser.add_argument('-P', '--port', type=int, default=8000,
-                    help="Port for GSMT server.")
-parser.add_argument('-a', '--adress', default="localhost",
-                    help="Adress for GSMT server.")
-parser.add_argument('-u', '--user',
-                    help="User under who to run the daemon.")
-parser.add_argument('-g', '--group',
-                    help="Group under who to run the daemon.")
+parser.add('-v', '--verbose', action='store_true', default=None,
+           help="Log debug messages.")
+parser.add('-f', '--foreground', action='store_true', default=None,
+           help="Do not fork stay in foregroud.")
+parser.add('-c', '--config', is_config_file=True,
+           help='path to the config file')
+parser.add('-p', '--path', default="/etc/GSMT",
+           help="Path to config directory.")
+parser.add('-P', '--port', type=int, default=8000,
+           help="Port for GSMT server.")
+parser.add('-a', '--adress', default="localhost",
+           help="Adress for GSMT server.")
+parser.add('-u', '--user', default=None,
+           help="User under who to run the daemon.")
+parser.add('-g', '--group', default=None,
+           help="Group under who to run the daemon.")
 args = parser.parse_args()
 
-daemon = Daemon(path=args.directory, verbose=args.verbose,
-                foreground=args.foreground, port=args.port, adress=args.adress,
-                user=args.user, group=args.group)
+daemon = Daemon(path=args.path, verbose=args.verbose,
+                foreground=args.foreground,
+                adress=Adress(args.adress, args.port),
+                system_user=SystemUser(args.user, args.group))
 daemon.start()

@@ -8,9 +8,25 @@ import logging
 import os
 import sys
 
+import configparser
 from daemonize import Daemonize
 
+from GSMT.data_groups import Adress, SystemUser
 from GSMT.xmlrpc_server import VerifyingServer
+
+
+def _init_stdout_logger():
+    """Return logger for stdout."""
+    logger = logging.getLogger("__main__")
+    logger.setLevel(logging.DEBUG)
+
+    stdout = logging.StreamHandler(sys.stdout)
+    stdout.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(message)s')
+    stdout.setFormatter(formatter)
+    logger.addHandler(stdout)
+    return logger
 
 
 class DaemonizeWithXMLRPC(Daemonize):
@@ -21,19 +37,21 @@ class DaemonizeWithXMLRPC(Daemonize):
     port = None
     log_requests = None
 
-    def __init__(self, adress="localhost", port=8000, log_requests=False,
+    def __init__(self, adress=None, log_requests=False,
                  **kwargs):
-        """Init :class:`Daemonize` and :class:`VerifyingServer`.
+        """Init :class Daemonize: and :class VerifyingServer:.
 
-        :param:`adress`: Adress of xmlrpc server
-        :param:`port`: Port of xmlrpc server
-        :param:`log_requests`: should be requests listed in logger?
+        :param str adress: Adress of xmlrpc server
+        :param int port: Port of xmlrpc server
+        :param log_requests`: should be requests listed in logger?
         """
         super(DaemonizeWithXMLRPC, self).__init__(**kwargs)
-        self.adress = adress
-        self.port = port
+        if adress is None:
+            self.adress = Adress("localhost", 8000)
+        else:
+            self.adress = adress
         self.log_requests = log_requests
-        self.server = VerifyingServer(self, (adress, port),
+        self.server = VerifyingServer(self, self.adress.as_tupple(),
                                       logRequests=log_requests)
 
     def exit(self):
@@ -53,52 +71,55 @@ class Daemon(object):
     """Daemon class of GSMT."""
 
     pid = None
+    path = None
     daemon = None
     debug = False
+    config = None
+
+    class ConfigSettings(object):
+        """Config file settings class object."""
+
+        verbose = None
+        foreground = None
+        adress = "localhost"
+        port = 8000
+        user = None
+        group = None
 
     def __init__(self, path="/etc/GSMT", verbose=False, foreground=False,
-                 port=8000, adress="localhost", user=None, group=None):
+                 adress=Adress("localhost", 8000), system_user=SystemUser(None, None)):
         """Init :class:`DaemonizeWithXMLRPC`.
 
         If path does not exists create it.
-        If debug create logger to stdout.
+        If verbose create logger to stdout.
 
         :param:`path`: Path for config, db and pidfile.
         :param:`verbose`: Lower log level to DEBUG.
         :param:`foreground`: If True app stays in foreground and redirect
                         the output to stdout.
-        :param:`port`: Port for XMLRPC.
-        :param:`adress`: Adress for XMLRPC.
-        :param:`user`: User for gsmt-daemon.
-        :param:`group`: Group for gsmt-daemon.
+        :param:`adress`: Port and Adress for XMLRPC.
+        :param:`system_user`: User and group for gsmt-daemon.
         """
         os.makedirs(path, exist_ok=True)  # Create dir when not exists
-        self.pid = os.path.join(path, "GSM.pid")
+        self.pid = os.path.join(path, "GSMT.pid")
+        self.path = path
 
-        if foreground:
-            # if debug create new logger to stdout
-            logger = logging.getLogger("__main__")
-            logger.setLevel(logging.DEBUG)
+        logger = _init_stdout_logger() if foreground else None
 
-            stdout = logging.StreamHandler(sys.stdout)
-            stdout.setLevel(logging.DEBUG)
-            formatter = logging.Formatter(
-                '%(asctime)s - %(levelname)s - %(message)s')
-            stdout.setFormatter(formatter)
-            logger.addHandler(stdout)
-        else:
-            # otherwise use system logger
-            logger = None
+        self.adress = adress
+        self.system_user = system_user
 
         self.daemonize = DaemonizeWithXMLRPC(
-            adress=adress, port=port, app="GSMT", pid=self.pid, user=user,
-            group=group, action=self.main, foreground=foreground,
-            verbose=verbose, logger=logger)
+            adress=adress, app="GSMT", pid=self.pid,
+            user=self.system_user.user, group=self.system_user.group,
+            verbose=verbose, logger=logger, action=self.main,
+            foreground=foreground)
 
     def main(self):
         """Register functions in xmlrpc and run server."""
         self.daemonize.server.register_introspection_functions()
         self.daemonize.start_xmlrpc()
+
 
     def start(self):
         """Shortcut to start the daemon."""
