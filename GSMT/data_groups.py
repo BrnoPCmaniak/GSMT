@@ -5,12 +5,14 @@ class Adress(object):
     """Store adress."""
 
     def __init__(self, adress=None, port=None, username=None, password=None):
-        """Init :class:`Adress`.
+        """Init :class Adress:.
 
-        :param:`adress` Adress (ip, domain name)
-        :param:`port` Port (int)
-        :param:`username` username
-        :param:`password` Password
+        -**parameters**, **types**, **return** and **return types**
+
+            :param str adress: Adress (ip, domain name)
+            :param int port: Port
+            :param str username: username
+            :param str password: Password
         """
         self.adress = adress
         self.port = port
@@ -43,6 +45,12 @@ class SystemUser(object):
     """Store data about user and Group."""
 
     def __init__(self, user, group):
-        """Init SystemUser."""
+        """Init SystemUser.
+
+        -**parameters**, **types**, **return** and **return types**
+
+            :param str user: System account under which will GSMT daemon run.
+            :param str group: System group under which will GSMT daemon run.
+        """
         self.user = user
         self.group = group

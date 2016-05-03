@@ -1,10 +1,11 @@
 """XMLRPC server.
 
-:class:`VerifyingServer`: provides XMLRPC server with HTTP authentication.
+:class VerifyingServer: provides XMLRPC server with HTTP authentication.
 """
 
-from xmlrpc.server import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 from base64 import b64decode
+
+from xmlrpc.server import SimpleXMLRPCRequestHandler, SimpleXMLRPCServer
 
 
 class VerifyingServer(SimpleXMLRPCServer):
@@ -12,8 +13,15 @@ class VerifyingServer(SimpleXMLRPCServer):
 
     daemon = None
 
-    def __init__(self, daemon, *args, **kargs):
-        """Initialize SimpleXMLRPCServer with VerifyingRequestHandler."""
+    def __init__(self, daemon, *args, **kwargs):
+        """Initialize SimpleXMLRPCServer with VerifyingRequestHandler.
+
+        -**parameters**, **types**, **return** and **return types**
+
+            :param Daemon daemon: GSMT daemon instance
+            :param dict *args: *args for SimpleXMLRPCServer
+            :param dict **kwargs: **kwargs for SimpleXMLRPCServer
+        """
         self.daemon = daemon
 
         class VerifyingRequestHandler(SimpleXMLRPCRequestHandler):
@@ -38,10 +46,10 @@ class VerifyingServer(SimpleXMLRPCServer):
         # and intialise the superclass with the above
         SimpleXMLRPCServer.__init__(
             self, requestHandler=VerifyingRequestHandler,
-            *args, **kargs)
+            *args, **kwargs)
 
     def authenticate(self, headers):
-        """Check user credentialsn."""
+        """Check user credentials."""
         basic, encoded = headers.get('Authorization').split(' ')
         assert basic == 'Basic', 'Only basic authentication supported'
         username, password = b64decode(encoded).decode().split(':')
