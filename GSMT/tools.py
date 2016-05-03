@@ -12,3 +12,10 @@ def mkdir_p(path):
             pass
         else:
             raise
+
+
+def remove_newline(string):
+    """If newline character on end remove it."""
+    if string[-1] == "\n":
+        return string[:-1]
+    return string
