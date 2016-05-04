@@ -4,38 +4,38 @@ GSMT - Game Server Managment Tool
 
 GSMT is perfect tool to keep your game server under control.
 
-    #!/usr/bin/env python
+Executables
+===========
 
-    from towelstuff import location
-    from towelstuff import utils
+gsmt-daemon
+-----------
 
-    if utils.has_towel():
-        print "Your towel is located:", location.where_is_my_towel()
+```
+usage: gsmt-daemon [-h] [-v] [-f] [-c CONFIG] [-p PATH] [-s SERVERS_PATH]
+                   [-P PORT] [-a ADRESS] [-u USER] [-g GROUP]
 
-(Note the double-colon and 4-space indent formatting above.)
+GSMT - Game Server Managment Tool Useful tool for server managment. Args that
+start with '--' (eg. -v) can also be set in a config file (/etc/GSMT/gsmt.ini
+or ./gsmt.ini or specified via -c). The recognized syntax for setting (key,
+value) pairs is based on the INI and YAML formats (e.g. key=value or
+foo=TRUE). For full documentation of the differences from the standards please
+refer to the ConfigArgParse documentation. If an arg is specified in more than
+one place, then commandline values override config file values which override
+defaults.
 
-Paragraphs are separated by blank lines. *Italics*, **bold**,
-and ``monospace`` look like this.
-
-
-A Section
-=========
-
-Lists look like this:
-
-* First
-
-* Second. Can be multiple lines
-  but must be indented properly.
-
-A Sub-Section
--------------
-
-Numbered lists look like you'd expect:
-
-1. hi there
-
-2. must be going
-
-Urls are http://like.this and links can be
-written `like this <http://www.example.com/foo/bar>`_.
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Log debug messages.
+  -f, --foreground      Do not fork stay in foregroud.
+  -c CONFIG, --config CONFIG
+                        path to the config file
+  -p PATH, --path PATH  Path to configs directory.
+  -s SERVERS_PATH, --servers-path SERVERS_PATH
+                        Path to servers location.
+  -P PORT, --port PORT  Port for GSMT server.
+  -a ADRESS, --adress ADRESS
+                        Adress for GSMT server.
+  -u USER, --user USER  User under who to run the daemon.
+  -g GROUP, --group GROUP
+                        Group under who to run the daemon.
+```
