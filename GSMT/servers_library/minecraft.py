@@ -37,6 +37,7 @@ class VanilaMinecraftServer(Server):
 
     def stop(self):
         """Send stop command to server."""
+        self.logger.info("Stopping \"%s\"..." % self.name)
         self.write("stop")
 
     def _get_jar_file(self):

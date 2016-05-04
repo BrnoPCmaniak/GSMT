@@ -61,8 +61,8 @@ class DaemonizeWithXMLRPC(Daemonize):
     log_requests = None
     is_stopping = False
 
-    def __init__(self, adress=Adress("localhost", 8000), log_requests=False,
-                 **kwargs):
+    def __init__(self, adress=Adress("localhost", 8000),
+                 log_requests=False, **kwargs):
         """Init :class Daemonize: and :class VerifyingServer:.
 
         -**parameters**, **types**, **return** and **return types**
@@ -77,7 +77,8 @@ class DaemonizeWithXMLRPC(Daemonize):
         self.log_requests = log_requests
         self.adress = adress
         self.server = VerifyingServer(self, self.adress.as_tupple(),
-                                      logRequests=log_requests)
+                                      logRequests=log_requests,
+                                      allow_none=True)
 
     def exit(self):
         """Override Daemonize.exit to fix ^C exit traceback."""
@@ -155,10 +156,12 @@ class Daemon(object):
     def main(self):
         """Register functions in xmlrpc and run server."""
         self.daemonize.server.register_introspection_functions()
-        self.daemonize.server.register_function(self.daemonize.stop)
+        self.daemonize.server.register_function(self.stop)
 
         for server in self.servers:
             server.start_on_daemon_start()
+
+        self.servers[0].write("help")
 
         self.daemonize.start_xmlrpc()
 
@@ -195,3 +198,14 @@ class Daemon(object):
     def start(self):
         """Shortcut to start the daemon."""
         self.daemonize.start()
+
+    def stop(self):
+        """Stop all servers and call deamon to stop."""
+        self.logger.info("Stopping servers.")
+        for server in self.servers:
+            try:
+                server.stop()
+            except NotImplementedError:
+                pass
+
+        self.daemonize.stop()
