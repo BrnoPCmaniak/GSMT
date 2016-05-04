@@ -6,7 +6,7 @@ setup(
     author='Filip Dobrovolny',
     author_email='brnopcman@gmail.com',
     packages=['GSMT'],
-    scripts=['bin/gsmt-daemon'],
+    scripts=['bin/gsmt-daemon', 'bin/gsmt'],
     url='https://github.com/BrnoPCmaniak/GSMT',
     license='docs/LICENSE.txt',
     description='GSMT - Game Server Managment Tool \n Useful tool for server managment.',
@@ -15,5 +15,6 @@ setup(
         "daemonize",
         "configargparse",
         "configparser",
+        "future",
     ],
 )

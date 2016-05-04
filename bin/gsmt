@@ -1,0 +1,21 @@
+#!/usr/bin/python3
+# pylint: disable=c0413,c0103
+"""GSMT client."""
+import os
+import sys
+import xmlrpc.client
+
+HERE = sys.path[0]
+if HERE != '/usr/bin':
+    # add ./GSMT folder to python libs (git checkout)
+    GSMT_TOP_LEVEL = os.path.dirname(HERE)
+    sys.path[0] = GSMT_TOP_LEVEL
+
+from GSMT.data_groups import Adress  # noqa
+
+adress = Adress(username="foo", password="bar", adress="localhost", port=8000)
+
+s = xmlrpc.client.ServerProxy(adress.as_url(), allow_none=True)
+
+print(s.system.listMethods())
+s.stop()
