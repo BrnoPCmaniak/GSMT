@@ -1,14 +1,42 @@
-===========
 GSMT - Game Server Managment Tool
-===========
+=================================
 
 GSMT is perfect tool to keep your game server under control.
 
-Executables
-===========
+Features
+--------
+* Multiple servers
+* united starter
 
-gsmt-daemon
+Tutorial
+--------
+
+1. In `/etc/GSMT` create config file for game server:
+2. The file should look like this:
+```
+[main]
+type = minecraft_vanila
+path = /opt/mc_server
+# start server on daemon start
+start_on_daemon_start = True
+# with java <options>
+java_options = -Xms1024M -Xmx2048M
+# name of Jar file
+jar_file = minecraft_server.1.9.2.jar
+```
+
+* **Name** - Name of server is defined in section header (e.g. `[main]`)
+* **type** - Type of server. Choose type from `GSMT/servers_library`.
+* **path** - Path to the root folder of game server.
+* **start_on_daemon_start** - Wheather the game server should automaticly start with daemon
+
+_others are game server specific options_
+
+Executables
 -----------
+
+### gsmt-daemon
+
 
 ```
 usage: gsmt-daemon [-h] [-v] [-f] [-c CONFIG] [-p PATH] [-s SERVERS_PATH]
@@ -39,3 +67,25 @@ optional arguments:
   -g GROUP, --group GROUP
                         Group under who to run the daemon.
 ```
+
+game_servers
+------------
+
+### minecraft_vanila
+Server for vanila game server from Mojang.
+
+Specifics:
+
+* **java_options** - Options for Java when running.
+* **jar_file** - Options to select mincraft.jar file.
+
+
+TODO
+----
+
+* Implement HTTPS for xmlrpc
+* Implement authentication
+* User client
+* xmlrpc dispatch
+* tests
+* update game server config
