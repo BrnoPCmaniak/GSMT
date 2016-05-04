@@ -10,7 +10,7 @@ setup(
     url='https://github.com/BrnoPCmaniak/GSMT',
     license='docs/LICENSE.txt',
     description='GSMT - Game Server Managment Tool \n Useful tool for server managment.',
-    long_description=open('README.txt').read(),
+    long_description=open('README.md').read(),
     install_requires=[
         "daemonize",
         "configargparse",
