@@ -49,8 +49,7 @@ class Server(object):
 
         mkdir_p(path)
 
-        self.logger.debug("Initialized server \"%s\" on path \"%s\"." % (name,
-                                                                         path))
+        self.logger.debug("Initialized server \"%s\" on path \"%s\"." % (name, path))
 
     def start(self):
         """Override this method to call self._start."""
@@ -64,6 +63,16 @@ class Server(object):
         """Stop the server."""
         raise NotImplementedError
 
+    def terminate(self):
+        """Terminate the server."""
+        self.logger.warn("Terminating server %s " % self.name)
+        self.process.terminate()
+
+    def kill(self):
+        """Terminate the server."""
+        self.logger.warn("Killing server %s " % self.name)
+        self.process.kill()
+
     def start_on_daemon_start(self):
         """If server option start_on_deamon_start is true start server."""
         if self.config.getboolean("start_on_daemon_start", fallback=False):
@@ -72,11 +81,13 @@ class Server(object):
     def _stdout_watcher(self):
         """Watch STDOUT output of self.process."""
         start_msg = "Starting STDOUT watcher for %s" % self.name
+        server_name = "[%s] - " % self.name
         self.logger.debug(start_msg)
         self.stdout_deque.append((time(), "GSMT: %s" % start_msg))
         try:
             with self.process.stdout:
                 for line in iter(self.process.stdout.readline, ''):
+                    self.logger.info(server_name + remove_newline(line))
                     self.stdout_deque.append((time(), remove_newline(line)))
         finally:
             stop_msg = "Stopping STDOUT watcher for %s" % self.name
@@ -86,11 +97,13 @@ class Server(object):
     def _stderr_watcher(self):
         """Watch STDERR output of self.process."""
         start_msg = "Starting STDERR watcher for %s" % self.name
+        server_name = "[%s] - " % self.name
         self.logger.debug(start_msg)
         self.stderr_deque.append((time(), "GSMT: %s" % start_msg))
         try:
             with self.process.stderr:
                 for line in iter(self.process.stderr.readline, ''):
+                    self.logger.error(server_name + remove_newline(line))
                     self.stderr_deque.append((time(), remove_newline(line)))
         finally:
             stop_msg = "Stopping STDERR watcher for %s" % self.name
