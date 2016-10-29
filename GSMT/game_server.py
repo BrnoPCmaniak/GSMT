@@ -156,11 +156,16 @@ class Server(object):
         self.stdin_deque.append((time(), remove_newline(command)))
         self.process.stdin.flush()  # needed for Python3
 
-    def combine(self):
+    def combine(self, since=None, stdin=True, stdout=True, stderr=True):
         """Combine output from stdout, stderr and stdin."""
         out = deque()
-        out.extend(self.stdin_deque)
-        out.extend(self.stdout_deque)
-        out.extend(self.stderr_deque)
+        if stdin:
+            out.extend(self.stdin_deque)
+        if stdout:
+            out.extend(self.stdout_deque)
+        if stderr:
+            out.extend(self.stderr_deque)
 
-        return sorted(out, key=lambda line: line[0])
+        out_f = out if since is None else filter(lambda line: line[0] > since, out)
+
+        return sorted(out_f, key=lambda line: line[0])
