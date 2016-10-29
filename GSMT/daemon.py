@@ -15,6 +15,7 @@ Functions::
 import logging
 import os
 import sys
+import time
 
 import configparser
 from daemonize import Daemonize
@@ -22,7 +23,6 @@ from daemonize import Daemonize
 from GSMT.data_groups import Adress, SystemUser
 from GSMT.servers_library import GAME_SERVERS
 from GSMT.tools import mkdir_p
-from GSMT.xmlrpc_server import VerifyingServer
 
 
 def _init_stdout_logger():
@@ -45,62 +45,17 @@ def _init_stdout_logger():
     return logger
 
 
-class DaemonizeWithXMLRPC(Daemonize):
-    """Daemonize with built-in xmlrpc_server.
-
-    This class extends Deamonize to include xmlrpc.server.
+class DaemonizeNoTraceback(Daemonize):
+    """Daemonize whihc overrides ^C exit traceback.
 
     Methods::
     * :function exit: :: Override Deamonize.exit.
-    * :function start_xmlrpc: :: Start XMLRPC server.
-    * :function stop: :: Stop XMLRPC server.
     """
-
-    server = None
-    adress = None
-    log_requests = None
-    is_stopping = False
-
-    def __init__(self, adress=Adress("localhost", 8000),
-                 log_requests=False, **kwargs):
-        """Init :class Daemonize: and :class VerifyingServer:.
-
-        -**parameters**, **types**, **return** and **return types**
-
-            :param str adress: Adress of xmlrpc server
-            :param int port: Port of xmlrpc server
-            :param boolean log_requests: should be requests listed in logger?
-            :param dict **kwargs: Parametrs for DaemonizeWithXMLRPC
-        """
-        super(DaemonizeWithXMLRPC, self).__init__(**kwargs)
-
-        self.log_requests = log_requests
-        self.adress = adress
-        self.server = VerifyingServer(self, self.adress.as_tupple(),
-                                      logRequests=log_requests,
-                                      allow_none=True)
 
     def exit(self):
         """Override Daemonize.exit to fix ^C exit traceback."""
         self.logger.warn("Stopping daemon.")
         os.remove(self.pid)
-
-    def start_xmlrpc(self):
-        """Start XMLRPC Server."""
-        try:
-            self.server.serve_forever()
-        except KeyboardInterrupt:
-            self.server.server_close()
-        except Exception as exception:  # pylint: disable=w0703
-            if self.is_stopping:
-                return
-            else:
-                raise exception
-
-    def stop(self):
-        """Stop xmlrpc server and call deamonize exit."""
-        self.is_stopping = True
-        self.server.server_close()
 
 
 class Daemon(object):
@@ -147,23 +102,18 @@ class Daemon(object):
 
         self._init_servers()
 
-        self.daemonize = DaemonizeWithXMLRPC(
-            adress=adress, app="GSMT", pid=self.pid,
-            user=self.system_user.user, group=self.system_user.group,
-            verbose=verbose, logger=self.logger, action=self.main,
-            foreground=foreground)
+        self.daemonize = DaemonizeNoTraceback(
+            app="GSMT", pid=self.pid, user=self.system_user.user, group=self.system_user.group,
+            verbose=verbose, logger=self.logger, action=self.main, foreground=foreground)
 
     def main(self):
-        """Register functions in xmlrpc and run server."""
-        self.daemonize.server.register_introspection_functions()
-        self.daemonize.server.register_function(self.stop)
-
+        """Register run server."""
         for server in self.servers:
             server.start_on_daemon_start()
 
-        self.servers[0].write("help")
-
-        self.daemonize.start_xmlrpc()
+        # TODO: Replace with flask
+        while True:
+            pass
 
     def _init_servers(self):
         """Init configs for gameservers."""
