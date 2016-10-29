@@ -5,7 +5,7 @@ setup(
     version='2.0.0',
     author='Filip Dobrovolny',
     author_email='brnopcman@gmail.com',
-    packages=['GSMT'],
+    packages=['GSMT', 'GSMT.servers_library'],
     scripts=['bin/gsmt-daemon', 'bin/gsmt'],
     url='https://github.com/BrnoPCmaniak/GSMT',
     license='docs/LICENSE.txt',
