@@ -11,7 +11,7 @@ Features
 Tutorial
 --------
 
-1. In `/etc/GSMT` create config file for game server:
+1. In `/etc/GSMT` create config file for game server with extension `.ini`:
 2. The file should look like this:
 ```
 [main]
@@ -83,9 +83,8 @@ Specifics:
 TODO
 ----
 
-* Implement HTTPS for xmlrpc
+* Implement restful flask
 * Implement authentication
 * User client
-* xmlrpc dispatch
 * tests
 * update game server config
